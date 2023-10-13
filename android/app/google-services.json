@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "253574715001",
+    "project_id": "doshisha-99b52",
+    "storage_bucket": "doshisha-99b52.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253574715001:android:d9315e863d72ff7703a6a8",
+        "android_client_info": {
+          "package_name": "com.keito.doshisha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAQsganwsRDimdufFrt_zo9XUq8KXb9Y8Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
