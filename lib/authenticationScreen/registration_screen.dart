@@ -819,7 +819,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
                         setState(() {
                           showProgressbar = false;
+                          authenticationController.imageFile = null;
                         });
+
+
                       }
                       else
                         {

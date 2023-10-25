@@ -1,4 +1,5 @@
 import 'package:doshisha/authenticationScreen/registration_screen.dart';
+import 'package:doshisha/controllers/authentication_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
   bool showProgressbar = false;
+  var controllerAuth = AuthenticationController.authController;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
               // login button
               Container(
                 width: MediaQuery.of(context).size.width - 36,
-                height: 55,
+                height: 50,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(
@@ -100,9 +102,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   )
                 ),
                 child: InkWell(
-                  onTap: ()
+                  onTap: () async
                   {
+                    if(emailTextEditingController.text.trim().isNotEmpty
+                    && passwordTextEditingController.text.trim().isNotEmpty)
+                      {
+                        setState(() {
+                          showProgressbar = true;
+                        });
 
+                        await controllerAuth.loginUser(
+                            emailTextEditingController.text.trim(),
+                            passwordTextEditingController.text.trim()
+                        );
+
+                        setState(() {
+                          showProgressbar = false;
+                        });
+                      }
+                    else {
+                      Get.snackbar("Email/Pssword is Missing", "Please fill all fields");
+                    }
                   },
 
                   child: const Center(
