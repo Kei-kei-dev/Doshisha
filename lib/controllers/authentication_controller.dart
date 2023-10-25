@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:doshisha/authenticationScreen/login_screen.dart';
 import 'package:doshisha/homeScreen/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,6 +12,8 @@ import 'package:doshisha/models/person.dart' as personModel;
 class AuthenticationController extends GetxController
 {
   static AuthenticationController authController = Get.find();
+
+  late Rx<User?> firebaseCurrentUser;
 
   late Rx<File?> pickedFile;
   File? get profileImage => pickedFile.value;
@@ -91,6 +94,7 @@ class AuthenticationController extends GetxController
       // 3. save user info to firestore database
       personModel.Person personInstance = personModel.Person(
         // personal info
+        uid: FirebaseAuth.instance.currentUser!.uid,
         imageProfile: urlOfDownloadImage,
         email: email,
         password: password,
@@ -146,5 +150,47 @@ class AuthenticationController extends GetxController
       Get.snackbar("Account Creation Unsuccessful", "Error occurred: $errorMsg");
     }
   }
+
+  loginUser(String emailuser, String passwordUser) async
+  {
+    try{
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailuser,
+          password: passwordUser,
+      );
+
+      Get.snackbar("ログインに成功しました。", "うまくログインできています");
+
+      Get.to(HomeScreen());
+    }
+    catch(errorMsg)
+    {
+      Get.snackbar("Login Unsuccessful", "Error occured: $errorMsg");
+    }
+  }
+
+  checkIfUserIsLoggedIn(User? currentUser)
+  {
+    if(currentUser == null)
+      {
+        Get.to(LoginScreen());
+      }
+    else
+      {
+        Get.to(HomeScreen());
+      }
+  }
+
+  @override
+  void onReady() {
+    // TODO: implement onReady
+    super.onReady();
+
+    firebaseCurrentUser = Rx<User?>(FirebaseAuth.instance.currentUser);
+    firebaseCurrentUser.bindStream(FirebaseAuth.instance.authStateChanges());
+
+    ever(firebaseCurrentUser, checkIfUserIsLoggedIn);
+  }
+
 
 }
