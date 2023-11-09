@@ -1,35 +1,71 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:doshisha/global.dart';
 import 'package:doshisha/models/person.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileController extends GetxController
 {
   final Rx<List<Person>> usersProfileList = Rx<List<Person>>([]);
   List<Person> get allUsersProfileList => usersProfileList.value;
 
+  getResults()
+  {
+    onInit();
+  }
+
+
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
 
-    usersProfileList.bindStream(
-      FirebaseFirestore.instance
-          .collection("users")
-          .where("uid", isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-          .snapshots()
-          .map((QuerySnapshot queryDataSnapshot)
-        {
-          List<Person> profileList = [];
+    if(chosenGender == null || chosenCountry == null || chosenGrade == null || chosenFaculty == null || chosenDepartment == null)
+    {
+      usersProfileList.bindStream(
+          FirebaseFirestore.instance
+              .collection("users")
+              .where("uid", isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
+              .snapshots()
+              .map((QuerySnapshot queryDataSnapshot)
+          {
+            List<Person> profileList = [];
 
-          for(var eachProfile in queryDataSnapshot.docs)
+            for(var eachProfile in queryDataSnapshot.docs)
             {
               profileList.add(Person.fromDataSnapshot(eachProfile));
             }
-           return profileList;
-        })
-    );
+            return profileList;
+          })
+      );
+    }
+    else
+      {
+        usersProfileList.bindStream(
+            FirebaseFirestore.instance
+                .collection("users")
+                .where("gender", isEqualTo: chosenGender.toString())
+                .where("country", isEqualTo: chosenCountry.toString())
+                .where("grade", isEqualTo: int.parse(chosenGrade.toString()))
+                .where("faculty", isEqualTo: chosenFaculty.toString())
+                .where("department", isEqualTo: chosenDepartment.toString())
+                .snapshots()
+                .map((QuerySnapshot queryDataSnapshot)
+            {
+              List<Person> profileList = [];
+
+              for(var eachProfile in queryDataSnapshot.docs)
+              {
+                profileList.add(Person.fromDataSnapshot(eachProfile));
+              }
+              return profileList;
+            })
+        );
+      }
+
   }
 
   favoriteSentAndFavoriteReceived(String toUserID, String senderName) async
@@ -70,9 +106,11 @@ class ProfileController extends GetxController
             .set({});
 
         // send notification
+        sendNotificationToUser(toUserID, "Favorite", senderName);
 
-        update();
       }
+
+    update();
   }
 
   likeSentAndLikeReceived(String toUserID, String senderName) async
@@ -113,9 +151,11 @@ class ProfileController extends GetxController
           .set({});
 
       // send notification
+      sendNotificationToUser(toUserID, "Like", senderName);
 
-      update();
     }
+
+    update();
   }
 
   viewSentAndViewReceived(String toUserID, String senderName) async
@@ -128,7 +168,7 @@ class ProfileController extends GetxController
     // remove the like from database
     if(document.exists)
     {
-
+      print("すでにviewListにいます");
     }
     // add new view in database
     else
@@ -146,8 +186,76 @@ class ProfileController extends GetxController
           .set({});
 
       // send notification
+      sendNotificationToUser(toUserID, "View", senderName);
 
-      update();
+
     }
+    update();
   }
+
+  sendNotificationToUser(receiverID, featureType, senderName) async
+  {
+    String userDeviceToken = "";
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(receiverID)
+        .get()
+        .then((snapshot)
+        {
+          if(snapshot.data()!["userDeviceToken"] != null)
+            {
+              userDeviceToken = snapshot.data()!["userDeviceToken"].toString();
+            }
+        }
+    );
+
+    notificationFormat(
+        userDeviceToken,
+        receiverID,
+        featureType,
+        senderName,
+
+    );
+  }
+
+  notificationFormat(userDeviceToken, receiverID, featureType, senderName)
+  {
+    Map<String, String> headerNotification =
+        {
+          "Content-Type" : "application/json",
+          "Authorization" : fcmServerToken,
+        };
+
+    Map bodyNotification =
+        {
+          "body" : "you have received a new $featureType from $senderName. Click to see.",
+          "title" : "New $featureType",
+        };
+
+    Map dataMap =
+        {
+          "click_action" : "FLUTTER_NOTTIFICATION_CLICK",
+          "id" : "1",
+          "status" : "done",
+          "userID" : receiverID,
+          "senderID" : currentUserID,
+        };
+
+    Map notificationOfficialFormat =
+        {
+          "notification" : bodyNotification,
+          "data" : dataMap,
+          "priority" : "high",
+          "to" : userDeviceToken,
+        };
+    
+    http.post(
+      Uri.parse("https://fcm.googleapis.com/fcm/send"),
+      headers: headerNotification,
+      body: jsonEncode(notificationOfficialFormat),
+    );
+  }
+
+
 }

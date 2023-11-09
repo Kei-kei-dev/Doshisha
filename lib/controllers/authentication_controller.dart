@@ -61,24 +61,25 @@ class AuthenticationController extends GetxController
       // personal info
       File imageProfile, String email,
       String password, String name,
-      String age, String grade,
+      String age, String gender, String grade,
       String faculty, String department,
-      String phoneNo, String city,
+       String city,
       String country, String profileHeading,
-      String lookingForInaPartner,
+
 
       // Appearance
       String height, String weight, String bodyType,
 
       // Life style
-      String drink, String smoke, String martialStatus,
-      String haveChildren, String noOfChildren, String profession,
-      String employmentStatus, String income, String livingSituation,
-      String willingToRelocate, String relationshipYouAreLookingFor,
+      String interest, String club,
+      String zodiac, String bloodType, String personality,
+      String drink, String smoke,
+      String exercise, String dietaryRestrictions,
+      String partTime, String livingSituation,
+      String lookingForInaPartner, String relationshipYouAreLookingFor,
 
       // Background - Cultural Values
-      String nationality, String education, String languageSpoken,
-      String religion, String ethnicity,
+      String nationality, String languageSpoken,
       ) async
   {
     try{
@@ -100,14 +101,13 @@ class AuthenticationController extends GetxController
         password: password,
         name: name,
         age: int.parse(age),
+        gender: gender,
         grade: int.parse(grade),
         faculty: faculty,
         department: department,
-        phoneNo: phoneNo,
         city: city,
         country: country,
         profileHeading: profileHeading,
-        lookingForInaPartner: lookingForInaPartner,
         publishedDateTime: DateTime.now().millisecondsSinceEpoch,
 
         // Appearance
@@ -116,24 +116,23 @@ class AuthenticationController extends GetxController
         bodyType: bodyType,
 
         // Life style
+        interest: interest,
+        club: club,
+        zodiac: zodiac,
+        bloodType: bloodType,
+        personality: personality,
         drink: drink,
         smoke: smoke,
-        martialStatus: martialStatus,
-        haveChildren: haveChildren,
-        noOfChildren: noOfChildren,
-        profession: profession,
-        employmentStatus: employmentStatus,
-        income: income,
+        exercise: exercise,
+        dietaryRestrictions: dietaryRestrictions,
+        partTime: partTime,
         livingSituation: livingSituation,
-        willingToRelocate: willingToRelocate,
+        lookingForInaPartner: lookingForInaPartner,
         relationshipYouAreLookingFor: relationshipYouAreLookingFor,
 
         // Background - Cultural Values
         nationality: nationality,
-        education: education,
         languageSpoken: languageSpoken,
-        religion: religion,
-        ethnicity: ethnicity,
 
       );
 
@@ -141,7 +140,7 @@ class AuthenticationController extends GetxController
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .set(personInstance.toJson());
 
-      Get.snackbar("Account Created", "Congratulation");
+      Get.snackbar("アカウント作成に成功しました。", "Congratulation");
       Get.to(HomeScreen());
 
     }
