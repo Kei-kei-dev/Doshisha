@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:doshisha/accountSettingScreen/account_settings_screen.dart';
+import 'package:doshisha/global.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slider/carousel.dart';
+import 'package:get/get.dart';
 
 class UserDetailScreen extends StatefulWidget {
 
@@ -18,14 +21,13 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   // personal info
   String name = '';
   String age = '';
+  String gender = '';
   String grade = '';
   String faculty = '';
   String department = '';
-  String phoneNo = '';
   String city = '';
   String country = '';
   String profileHeading = '';
-  String lookingForInaPartner = '';
 
   // Appearance
   String height = '';
@@ -33,24 +35,23 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
   String bodyType = '';
 
   // Life style
+  String interest = '';
+  String club = '';
+  String zodiac = '';
+  String bloodType = '';
+  String personality = '';
   String drink = '';
   String smoke = '';
-  String martialStatus = '';
-  String haveChildren = '';
-  String noOfChildren = '';
-  String profession = '';
-  String employmentStatus = '';
-  String income = '';
+  String exercise = '';
+  String dietaryRestrictions = '';
+  String partTime = '';
   String livingSituation = '';
-  String willingToRelocate = '';
+  String lookingForInaPartner = '';
   String relationshipYouAreLookingFor = '';
 
   // Background - Cultural Values
   String nationality = '';
-  String education = '';
   String languageSpoken = '';
-  String religion = '';
-  String ethnicity = '';
 
   // slider images
   String urlImage1 = 'https://firebasestorage.googleapis.com/v0/b/doshisha-99b52.appspot.com/o/Place%20Holder%2Fprofile_avatar.jpg?alt=media&token=79c44291-a30a-4960-9e66-382c79a56848';
@@ -88,14 +89,13 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             // personal info
             name = snapshot.data()!["name"];
             age = snapshot.data()!["age"].toString();
+            gender = snapshot.data()!["gender"].toString();
             grade = snapshot.data()!["grade"].toString();
             faculty = snapshot.data()!["faculty"];
             department = snapshot.data()!["department"];
-            phoneNo = snapshot.data()!["phoneNo"];
             city = snapshot.data()!["city"];
             country = snapshot.data()!["country"];
             profileHeading = snapshot.data()!["profileHeading"];
-            lookingForInaPartner = snapshot.data()!["lookingForInaPartner"];
 
             // personal info
             height = snapshot.data()!["height"];
@@ -103,24 +103,23 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
             bodyType = snapshot.data()!["bodyType"];
 
             // Life style
+            interest = snapshot.data()!["interest"];
+            club = snapshot.data()!["club"];
+            zodiac = snapshot.data()!["zodiac"];
+            bloodType = snapshot.data()!["bloodType"];
+            personality = snapshot.data()!["personality"];
             drink = snapshot.data()!["drink"];
             smoke = snapshot.data()!["smoke"];
-            martialStatus = snapshot.data()!["martialStatus"];
-            haveChildren = snapshot.data()!["haveChildren"];
-            noOfChildren = snapshot.data()!["noOfChildren"];
-            profession = snapshot.data()!["profession"];
-            employmentStatus = snapshot.data()!["employmentStatus"];
-            income = snapshot.data()!["income"];
+            exercise = snapshot.data()!["exercise"];
+            dietaryRestrictions = snapshot.data()!["dietaryRestrictions"];
+            partTime = snapshot.data()!["partTime"];
             livingSituation = snapshot.data()!["livingSituation"];
-            willingToRelocate = snapshot.data()!["willingToRelocate"];
+            lookingForInaPartner = snapshot.data()!["lookingForInaPartner"];
             relationshipYouAreLookingFor = snapshot.data()!["relationshipYouAreLookingFor"];
 
             //Background - Cultural Values
             nationality = snapshot.data()!["nationality"];
-            education = snapshot.data()!["education"];
             languageSpoken = snapshot.data()!["languageSpoken"];
-            religion = snapshot.data()!["religion"];
-            ethnicity = snapshot.data()!["ethnicity"];
 
 
           });
@@ -149,18 +148,40 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
           ),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        // automaticallyImplyLeading: widget.userID == currentUserID ? false : true,
+        leading: widget.userID != currentUserID ? IconButton(
+          onPressed: ()
+          {
+            Get.back();
+          },
+          icon: const Icon(Icons.arrow_back_outlined, size: 30,),
+        ) : Container(),
         actions: [
-          IconButton(
-            onPressed: ()
-            {
-              FirebaseAuth.instance.signOut();
-            },
-            icon: const Icon(
-              Icons.logout,
-              size: 30,
-            ),
-          ),
+          widget.userID == currentUserID ?
+          Row(
+            children: [
+              IconButton(
+                onPressed: ()
+                {
+                  Get.to(AccountSettingsScreen());
+                },
+                icon: const Icon(
+                  Icons.settings,
+                  size: 30,
+                ),
+              ),
+              IconButton(
+                onPressed: ()
+                {
+                  FirebaseAuth.instance.signOut();
+                },
+                icon: const Icon(
+                  Icons.logout,
+                  size: 30,
+                ),
+              ),
+            ],
+          ) : Container(),
         ],
       ),
       body: SingleChildScrollView(
@@ -256,6 +277,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                       ]
                     ),
 
+
                     // age
                     TableRow(
                       children: [
@@ -269,6 +291,37 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
                         Text(
                           age,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+
+                    const TableRow(
+                        children:
+                        [
+                          Text(""),
+                          Text(""),
+                        ]
+                    ),
+
+                    // age
+                    TableRow(
+                      children: [
+                        const Text(
+                          "性別: ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        Text(
+                          gender,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 18,
@@ -380,36 +433,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // phoneNo
-                    TableRow(
-                      children: [
-                        const Text(
-                          "電話番号: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          phoneNo,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
 
                     // city
                     TableRow(
@@ -477,7 +500,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                     TableRow(
                       children: [
                         const Text(
-                          "Profile Heading: ",
+                          "自己紹介: ",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -504,36 +527,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    //seeking
-                    TableRow(
-                      children: [
-                        const Text(
-                          "求めるもの: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          lookingForInaPartner,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
 
                   ],
                 ),
@@ -689,6 +682,161 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                 child: Table(
                   children: [
 
+                    // interest
+                    TableRow(
+                      children: [
+                        const Text(
+                          "興味: ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        Text(
+                          interest,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+
+                    const TableRow(
+                        children:
+                        [
+                          Text(""),
+                          Text(""),
+                        ]
+                    ),
+
+                    // club
+                    TableRow(
+                      children: [
+                        const Text(
+                          "部活/サークル: ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        Text(
+                          club,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+
+                    const TableRow(
+                        children:
+                        [
+                          Text(""),
+                          Text(""),
+                        ]
+                    ),
+
+                    // zodiac
+                    TableRow(
+                      children: [
+                        const Text(
+                          "星座: ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        Text(
+                          zodiac,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+
+                    const TableRow(
+                        children:
+                        [
+                          Text(""),
+                          Text(""),
+                        ]
+                    ),
+
+                    // bloodType
+                    TableRow(
+                      children: [
+                        const Text(
+                          "血液型: ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        Text(
+                          bloodType,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+
+                    const TableRow(
+                        children:
+                        [
+                          Text(""),
+                          Text(""),
+                        ]
+                    ),
+
+                    // personality
+                    TableRow(
+                      children: [
+                        const Text(
+                          "mbti: ",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+
+                        Text(
+                          personality,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 18,
+                          ),
+                        ),
+
+
+                      ],
+                    ),
+
+                    const TableRow(
+                        children:
+                        [
+                          Text(""),
+                          Text(""),
+                        ]
+                    ),
+
                     // drink
                     TableRow(
                       children: [
@@ -753,11 +901,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // martialStatus
+                    // exercise
                     TableRow(
                       children: [
                         const Text(
-                          "martialStatus: ",
+                          "運動: ",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -765,7 +913,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ),
 
                         Text(
-                          martialStatus,
+                          exercise,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 18,
@@ -784,11 +932,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // HaveChildren
+                    // dietaryRestrictions
                     TableRow(
                       children: [
                         const Text(
-                          "haveChildren: ",
+                          "食事制限: ",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -796,7 +944,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ),
 
                         Text(
-                          haveChildren,
+                          dietaryRestrictions,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 18,
@@ -815,11 +963,11 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // noOfChildren
+                    // partTime
                     TableRow(
                       children: [
                         const Text(
-                          "noOfChildren: ",
+                          "バイト: ",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -827,7 +975,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ),
 
                         Text(
-                          noOfChildren,
+                          partTime,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 18,
@@ -846,98 +994,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // profession
-                    TableRow(
-                      children: [
-                        const Text(
-                          "職業: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          department,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
-
-                    // employmentStatus
-                    TableRow(
-                      children: [
-                        const Text(
-                          "employmentStatus: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          employmentStatus,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
-
-                    // income
-                    TableRow(
-                      children: [
-                        const Text(
-                          "収入: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          income,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
 
                     // LivingSituation
                     TableRow(
@@ -970,11 +1026,12 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // WillingToRelocate
+
+                    //lookingForInaPartner
                     TableRow(
                       children: [
                         const Text(
-                          "willingrelo: ",
+                          "求めるもの: ",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -982,7 +1039,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ),
 
                         Text(
-                          willingToRelocate,
+                          lookingForInaPartner,
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 18,
@@ -1093,37 +1150,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                         ]
                     ),
 
-                    // education
-                    TableRow(
-                      children: [
-                        const Text(
-                          "education: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          education,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
-
                     // languageSpoken
                     TableRow(
                       children: [
@@ -1154,70 +1180,6 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
                           Text(""),
                         ]
                     ),
-
-                    // religion
-                    TableRow(
-                      children: [
-                        const Text(
-                          "宗教: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          religion,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
-
-                    // ethnicity
-                    TableRow(
-                      children: [
-                        const Text(
-                          "ethnicity: ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-
-                        Text(
-                          ethnicity,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 18,
-                          ),
-                        ),
-
-
-                      ],
-                    ),
-
-                    const TableRow(
-                        children:
-                        [
-                          Text(""),
-                          Text(""),
-                        ]
-                    ),
-
-
 
                   ],
                 ),

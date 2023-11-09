@@ -1,25 +1,35 @@
 import 'dart:io';
 
-import 'package:doshisha/controllers/authentication_controller.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:doshisha/global.dart';
+import 'package:doshisha/homeScreen/home_screen.dart';
 import 'package:doshisha/widgets/custom_text_field_widget.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
-class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+class AccountSettingsScreen extends StatefulWidget {
+  const AccountSettingsScreen({super.key});
 
   @override
-  State<RegistrationScreen> createState() => _RegistrationScreenState();
+  State<AccountSettingsScreen> createState() => _AccountSettingsScreenState();
 }
 
-class _RegistrationScreenState extends State<RegistrationScreen> {
+
+
+class _AccountSettingsScreenState extends State<AccountSettingsScreen>
+{
+  bool uploading = false, next = false;
+  final List<File> _image = [];
+  List<String> urlsList = [];
+  double val = 0;
+
   // personal info
-  TextEditingController emailTextEditingController = TextEditingController();
-  TextEditingController passwordTextEditingController = TextEditingController();
+  TextEditingController genderTextEditingController = TextEditingController();
   TextEditingController nameTextEditingController = TextEditingController();
   TextEditingController ageTextEditingController = TextEditingController();
-  TextEditingController genderTextEditingController = TextEditingController();
   TextEditingController gradeTextEditingController = TextEditingController();
   TextEditingController facultyTextEditingController = TextEditingController();
   TextEditingController departmentTextEditingController = TextEditingController();
@@ -41,7 +51,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   TextEditingController drinkTextEditingController = TextEditingController();
   TextEditingController smokeTextEditingController = TextEditingController();
   TextEditingController exerciseTextEditingController = TextEditingController();
-  TextEditingController dietaryRestrictionTextEditingController = TextEditingController();
+  TextEditingController dietaryRestrictionsTextEditingController = TextEditingController();
   TextEditingController partTimeTextEditingController = TextEditingController();
   TextEditingController livingSituationTextEditingController = TextEditingController();
   TextEditingController lookingForInaPartnerTextEditingController = TextEditingController();
@@ -50,113 +60,316 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   TextEditingController nationalityTextEditingController = TextEditingController();
   TextEditingController languageSpokenTextEditingController = TextEditingController();
 
-  bool showProgressbar = false;
+  // personal info
+  String name = '';
+  String age = '';
+  String gender = '';
+  String grade = '';
+  String faculty = '';
+  String department = '';
+  String city = '';
+  String country = '';
+  String profileHeading = '';
 
-  var authenticationController = AuthenticationController.authController;
+  // Appearance
+  String height = '';
+  String weight = '';
+  String bodyType = '';
+
+  // Life style
+  String interest = '';
+  String club = '';
+  String zodiac = '';
+  String bloodType = '';
+  String personality = '';
+  String drink = '';
+  String smoke = '';
+  String exercise = '';
+  String dietaryRestrictions = '';
+  String partTime = '';
+  String livingSituation = '';
+  String lookingForInaPartner = '';
+  String relationshipYouAreLookingFor = '';
+
+  // Background - Cultural Values
+  String nationality = '';
+  String languageSpoken = '';
+
+  chooseImage() async
+  {
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image.add(File(pickedFile!.path));
+    });
+  }
+
+  uploadImages() async
+  {
+    int i = 1;
+
+    for(var img in _image)
+      {
+        setState(() {
+          val = i / _image.length;
+        });
+
+        var refImages = FirebaseStorage.instance
+            .ref()
+            .child("images/${DateTime.now().millisecondsSinceEpoch.toString()}.jpg");
+
+        await refImages.putFile(img)
+            .whenComplete(()  async
+        {
+          await refImages.getDownloadURL()
+              .then((urlImage)
+          {
+            urlsList.add(urlImage);
+
+            i++;
+          });
+        });
+      }
+  }
+
+  retrieveUserData() async
+  {
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(currentUserID)
+        .get()
+        .then((snapshot)
+    {
+      if(snapshot.exists)
+        {
+          setState(() {
+            // personal info
+            name = snapshot.data()!["name"];
+            nameTextEditingController.text = name;
+            age = snapshot.data()!["age"].toString();
+            ageTextEditingController.text = age;
+            gender = snapshot.data()!["gender"].toString();
+            genderTextEditingController.text = gender;
+            grade = snapshot.data()!["grade"].toString();
+            gradeTextEditingController.text = grade;
+            faculty = snapshot.data()!["faculty"];
+            facultyTextEditingController.text = faculty;
+            department = snapshot.data()!["department"];
+            departmentTextEditingController.text = department;
+            city = snapshot.data()!["city"];
+            cityTextEditingController.text = city;
+            country = snapshot.data()!["country"];
+            countryTextEditingController.text = country;
+            profileHeading = snapshot.data()!["profileHeading"];
+            profileHeadingTextEditingController.text = profileHeading;
+
+            // Appearance
+            height = snapshot.data()!["height"];
+            heightTextEditingController.text = height;
+            weight = snapshot.data()!["weight"];
+            weightTextEditingController.text = weight;
+            bodyType = snapshot.data()!["bodyType"];
+            bodyTypeTextEditingController.text = bodyType;
+
+            // Life style
+            interest = snapshot.data()!["interest"];
+            interestTextEditingController.text = interest;
+            club = snapshot.data()!["club"];
+            clubTextEditingController.text = club;
+            zodiac = snapshot.data()!["zodiac"];
+            zodiacTextEditingController.text = zodiac;
+            bloodType = snapshot.data()!["bloodType"];
+            bloodTypeTextEditingController.text = bloodType;
+            personality = snapshot.data()!["personality"];
+            personalityTextEditingController.text = personality;
+            drink = snapshot.data()!["drink"];
+            drinkTextEditingController.text = drink;
+            smoke = snapshot.data()!["smoke"];
+            smokeTextEditingController.text = smoke;
+            exercise = snapshot.data()!["exercise"];
+            exerciseTextEditingController.text = exercise;
+            dietaryRestrictions = snapshot.data()!["dietaryRestrictions"];
+            dietaryRestrictionsTextEditingController.text = dietaryRestrictions;
+            partTime = snapshot.data()!["partTime"];
+            partTimeTextEditingController.text = partTime;
+            livingSituation = snapshot.data()!["livingSituation"];
+            livingSituationTextEditingController.text = livingSituation;
+            lookingForInaPartner = snapshot.data()!["lookingForInaPartner"];
+            lookingForInaPartnerTextEditingController.text = lookingForInaPartner;
+            relationshipYouAreLookingFor = snapshot.data()!["relationshipYouAreLookingFor"];
+            relationshipYouAreLookingForTextEditingController.text = relationshipYouAreLookingFor;
+
+            //Background - Cultural Values
+            nationality = snapshot.data()!["nationality"];
+            nationalityTextEditingController.text = nationality;
+            languageSpoken = snapshot.data()!["languageSpoken"];
+            languageSpokenTextEditingController.text = languageSpoken;
+          });
+        }
+    });
+  }
+
+  updateUserDataToFirestoreDatabase(
+      // personal info
+      String name, String age, String gender,
+      String grade, String faculty,
+      String department, String city,
+      String country, String profileHeading,
+
+
+      // Appearance
+      String height, String weight, String bodyType,
+
+      // Life style
+      String interest, String club,
+      String zodiac, String bloodType, String personality,
+      String drink, String smoke,
+      String exercise, String dietaryRestrictions,
+      String partTime, String livingSituation,
+      String lookingForInaPartner, String relationshipYouAreLookingFor,
+
+      // Background - Cultural Values
+      String nationality, String languageSpoken,
+      ) async
+  {
+    showDialog(
+        context: context,
+        builder: (context)
+        {
+          return const AlertDialog(
+            content: SizedBox(
+              height: 200,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text("uploading images..."),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+    );
+
+    await uploadImages();
+
+    await FirebaseFirestore.instance
+        .collection("users")
+    .doc(currentUserID)
+    .update(
+      {
+        // personal info
+        'name': name,
+        'age': int.parse(age),
+        'gender': gender,
+        'grade': int.parse(grade),
+        'faculty': faculty,
+        'department': department,
+        'city': city,
+        'country': country,
+        'profileHeading': profileHeading,
+
+        // Appearance
+        'height': height,
+        'weight': weight,
+        'bodyType': bodyType,
+
+        // Life style
+        'interest': interest,
+        'club': club,
+        'zodiac': zodiac,
+        'bloodType': bloodType,
+        'personality': personality,
+        'drink': drink,
+        'smoke': smoke,
+        'exercise': exercise,
+        'dietaryRestrictions': dietaryRestrictions,
+        'partTime': partTime,
+        'livingSituation': livingSituation,
+        'lookingForInaPartner': lookingForInaPartner,
+        'relationshipYouAreLookingFor': relationshipYouAreLookingFor,
+
+        // Background - Cultural Values
+        'nationality': nationality,
+        'languageSpoken': languageSpoken,
+
+        // images
+        'urlImage1' : urlsList[0].toString(),
+        'urlImage2' : urlsList[1].toString(),
+        'urlImage3' : urlsList[2].toString(),
+        'urlImage4' : urlsList[3].toString(),
+        'urlImage5' : urlsList[4].toString(),
+      }
+    );
+
+    Get.snackbar('updated', "アカウント情報が更新されました。");
+
+    Get.to(HomeScreen());
+
+    setState(() {
+      uploading = false;
+      _image.clear();
+      urlsList.clear();
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    retrieveUserData();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
+      appBar: AppBar(
+        title: Text(
+          next ? "Profile Information" : "Choose 5 images",
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+          ),
+        ),
+        actions: [
+          next
+              ? Container()
+              : IconButton(
+                  onPressed: ()
+                  {
+                    if(_image.length == 5)
+                      {
+                        setState(() {
+                          uploading = true;
+                          next = true;
+                        });
+                      }
+                    else
+                      {
+                        Get.snackbar("5 images", "写真を５枚選んだください");
+                      }
+                  },
+                  icon: const Icon(Icons.navigate_next_outlined, size: 36,),
+          ),
+        ],
+      ),
+      body: next
+          ? SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(30),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
 
               const SizedBox(
-                height: 100,
-              ),
-
-              const Text(
-                "新規アカウント作成",
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(
-                height: 10,
-              ),
-
-              const Text(
-                "さあ、始めよう。",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey,
-                ),
-              ),
-
-              const SizedBox(
-                height: 16,
-              ),
-
-              // choose image circle avatar
-              authenticationController.imageFile == null ?
-              const CircleAvatar(
-                radius: 80,
-                backgroundImage: AssetImage(
-                    "images/profile_avatar.jpg"
-                ),
-                backgroundColor: Colors.black,
-              ) : Container(
-                width: 180,
-                height: 180,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey,
-                  image: DecorationImage(
-                    fit: BoxFit.fitHeight,
-                    image: FileImage(
-                      File(
-                        authenticationController.imageFile!.path,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () async{
-                      await authenticationController.pickImageFileFromGallery();
-
-                      setState(() {
-                        authenticationController.imageFile;
-                      });
-                    },
-                    icon: const Icon(
-                      Icons.image_outlined,
-                      color: Colors.grey,
-                      size: 30,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    width: 10,
-                  ),
-
-                  IconButton(
-                    onPressed: () async {
-                      await authenticationController.captureImageFileFromPhoneCamera();
-
-                      setState(() {
-                        authenticationController.imageFile;
-                      });
-                    },
-                    icon: const Icon(
-                      Icons.camera_alt_outlined,
-                      color: Colors.grey,
-                      size: 30,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(
-                height: 30,
+                height: 2,
               ),
 
               // personal info
@@ -185,38 +398,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
 
-              const SizedBox(
-                height: 24,
-              ),
 
-
-              // email
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 36,
-                height: 55,
-                child: CustomTextFieldWidget(
-                  editingController: emailTextEditingController,
-                  labelText: "メールアドレス",
-                  iconData: Icons.email_outlined,
-                  isObscure: false,
-                ),
-              ),
-
-              const SizedBox(
-                height: 24,
-              ),
-
-              // password
-              SizedBox(
-                width: MediaQuery.of(context).size.width - 36,
-                height: 55,
-                child: CustomTextFieldWidget(
-                  editingController: passwordTextEditingController,
-                  labelText: "パスワード",
-                  iconData: Icons.lock_outlined,
-                  isObscure: true,
-                ),
-              ),
 
               const SizedBox(
                 height: 24,
@@ -350,8 +532,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               const SizedBox(
                 height: 24,
               ),
-
-
 
               // Appearance
               const Text(
@@ -562,7 +742,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 width: MediaQuery.of(context).size.width - 36,
                 height: 55,
                 child: CustomTextFieldWidget(
-                  editingController: dietaryRestrictionTextEditingController,
+                  editingController: dietaryRestrictionsTextEditingController,
                   labelText: "食事制限",
                   iconData: CupertinoIcons.person_3_fill,
                   isObscure: false,
@@ -685,7 +865,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 24,
               ),
 
-
               // create account button
               Container(
                 width: MediaQuery.of(context).size.width - 36,
@@ -699,114 +878,92 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 child: InkWell(
                   onTap: () async
                   {
-                    if(authenticationController.imageFile != null)
+                    if(
+                    // personal info
+                    nameTextEditingController.text.trim().isNotEmpty
+                        && ageTextEditingController.text.trim().isNotEmpty
+                        && genderTextEditingController.text.trim().isNotEmpty
+                        && gradeTextEditingController.text.trim().isNotEmpty
+                        && facultyTextEditingController.text.trim().isNotEmpty
+                        && departmentTextEditingController.text.trim().isNotEmpty
+                        && cityTextEditingController.text.trim().isNotEmpty
+                        && countryTextEditingController.text.trim().isNotEmpty
+                        && profileHeadingTextEditingController.text.trim().isNotEmpty
+
+                        // Appearance
+                        && heightTextEditingController.text.trim().isNotEmpty
+                        && weightTextEditingController.text.trim().isNotEmpty
+                        && bodyTypeTextEditingController.text.trim().isNotEmpty
+
+                        // Life style
+                        && interestTextEditingController.text.trim().isNotEmpty
+                        && clubTextEditingController.text.trim().isNotEmpty
+                        && zodiacTextEditingController.text.trim().isNotEmpty
+                        && bloodTypeTextEditingController.text.trim().isNotEmpty
+                        && personalityTextEditingController.text.trim().isNotEmpty
+                        && drinkTextEditingController.text.trim().isNotEmpty
+                        && smokeTextEditingController.text.trim().isNotEmpty
+                        && exerciseTextEditingController.text.trim().isNotEmpty
+                        && dietaryRestrictionsTextEditingController.text.trim().isNotEmpty
+                        && partTimeTextEditingController.text.trim().isNotEmpty
+                        && livingSituationTextEditingController.text.trim().isNotEmpty
+                        && lookingForInaPartnerTextEditingController.text.trim().isNotEmpty
+                        && relationshipYouAreLookingForTextEditingController.text.trim().isNotEmpty
+
+                        // Background - Cultural Values
+                        && nationalityTextEditingController.text.trim().isNotEmpty
+                        && languageSpokenTextEditingController.text.trim().isNotEmpty
+                    )
                     {
-                      // 全部項目埋めておかないとアカウントが作れないようになっている↓
-                      if(
-                          // personal info
-                          nameTextEditingController.text.trim().isNotEmpty
-                          && emailTextEditingController.text.trim().isNotEmpty
-                          && passwordTextEditingController.text.trim().isNotEmpty
-                          && ageTextEditingController.text.trim().isNotEmpty
-                          && genderTextEditingController.text.trim().isNotEmpty
-                          && gradeTextEditingController.text.trim().isNotEmpty
-                          && facultyTextEditingController.text.trim().isNotEmpty
-                          && departmentTextEditingController.text.trim().isNotEmpty
-                          && cityTextEditingController.text.trim().isNotEmpty
-                          && countryTextEditingController.text.trim().isNotEmpty
-                          && profileHeadingTextEditingController.text.trim().isNotEmpty
+                      _image.length > 0 ?
+                      await updateUserDataToFirestoreDatabase(
+                        // personal info
 
-                              // Appearance
-                          && heightTextEditingController.text.trim().isNotEmpty
-                          && weightTextEditingController.text.trim().isNotEmpty
-                          && bodyTypeTextEditingController.text.trim().isNotEmpty
+                        nameTextEditingController.text.trim(),
+                        ageTextEditingController.text.trim(),
+                        genderTextEditingController.text.trim(),
+                        gradeTextEditingController.text.trim(),
+                        facultyTextEditingController.text.trim(),
+                        departmentTextEditingController.text.trim(),
+                        cityTextEditingController.text.trim(),
+                        countryTextEditingController.text.trim(),
+                        profileHeadingTextEditingController.text.trim(),
 
-                              // Life style
-                          && interestTextEditingController.text.trim().isNotEmpty
-                          && clubTextEditingController.text.trim().isNotEmpty
-                          && zodiacTextEditingController.text.trim().isNotEmpty
-                          && bloodTypeTextEditingController.text.trim().isNotEmpty
-                          && personalityTextEditingController.text.trim().isNotEmpty
-                          && drinkTextEditingController.text.trim().isNotEmpty
-                          && smokeTextEditingController.text.trim().isNotEmpty
-                          && exerciseTextEditingController.text.trim().isNotEmpty
-                          && dietaryRestrictionTextEditingController.text.trim().isNotEmpty
-                          && partTimeTextEditingController.text.trim().isNotEmpty
-                          && livingSituationTextEditingController.text.trim().isNotEmpty
-                          && lookingForInaPartnerTextEditingController.text.trim().isNotEmpty
-                          && relationshipYouAreLookingForTextEditingController.text.trim().isNotEmpty
+                        // Appearance
+                        heightTextEditingController.text.trim(),
+                        weightTextEditingController.text.trim(),
+                        bodyTypeTextEditingController.text.trim(),
 
-                              // Background - Cultural Values
-                          && nationalityTextEditingController.text.trim().isNotEmpty
-                          && languageSpokenTextEditingController.text.trim().isNotEmpty
-                      )
-                      {
-                        setState(() {
-                          showProgressbar = true;
-                        });
+                        // Life style
+                        interestTextEditingController.text.trim(),
+                        clubTextEditingController.text.trim(),
+                        zodiacTextEditingController.text.trim(),
+                        bloodTypeTextEditingController.text.trim(),
+                        personalityTextEditingController.text.trim(),
+                        drinkTextEditingController.text.trim(),
+                        smokeTextEditingController.text.trim(),
+                        exerciseTextEditingController.text.trim(),
+                        dietaryRestrictionsTextEditingController.text.trim(),
+                        partTimeTextEditingController.text.trim(),
+                        livingSituationTextEditingController.text.trim(),
+                        lookingForInaPartnerTextEditingController.text.trim(),
+                        relationshipYouAreLookingForTextEditingController.text.trim(),
 
-                        await authenticationController.createNewUserAccount(
-                          // personal info
-                          authenticationController.profileImage!,
-                          emailTextEditingController.text.trim(),
-                          passwordTextEditingController.text.trim(),
-                          nameTextEditingController.text.trim(),
-                          ageTextEditingController.text.trim(),
-                          genderTextEditingController.text.trim(),
-                          gradeTextEditingController.text.trim(),
-                          facultyTextEditingController.text.trim(),
-                          departmentTextEditingController.text.trim(),
-                          cityTextEditingController.text.trim(),
-                          countryTextEditingController.text.trim(),
-                          profileHeadingTextEditingController.text.trim(),
+                        // Background - Cultural Values
+                        nationalityTextEditingController.text.trim(),
+                        languageSpokenTextEditingController.text.trim(),
 
-                            // Appearance
-                            heightTextEditingController.text.trim(),
-                            weightTextEditingController.text.trim(),
-                            bodyTypeTextEditingController.text.trim(),
-
-                            // Life style
-                            interestTextEditingController.text.trim(),
-                            clubTextEditingController.text.trim(),
-                            zodiacTextEditingController.text.trim(),
-                            bloodTypeTextEditingController.text.trim(),
-                            personalityTextEditingController.text.trim(),
-                            drinkTextEditingController.text.trim(),
-                            smokeTextEditingController.text.trim(),
-                            exerciseTextEditingController.text.trim(),
-                            dietaryRestrictionTextEditingController.text.trim(),
-                            partTimeTextEditingController.text.trim(),
-                            livingSituationTextEditingController.text.trim(),
-                            lookingForInaPartnerTextEditingController.text.trim(),
-                            relationshipYouAreLookingForTextEditingController.text.trim(),
-
-                            // Background - Cultural Values
-                            nationalityTextEditingController.text.trim(),
-                            languageSpokenTextEditingController.text.trim(),
-
-                        );
-
-                        setState(() {
-                          showProgressbar = false;
-                          authenticationController.imageFile = null;
-                        });
-
-
-                      }
-                      else
-                        {
-                          Get.snackbar("A Field is empty", "Please fill out all field in text fields");
-                        }
+                      ) : null;
                     }
                     else
-                      {
-                        Get.snackbar("image File Missing", "Please pick image from galley or capture with camera");
-                      }
+                    {
+                      Get.snackbar("A Field is empty", "Please fill out all field in text fields");
+                    }
                   },
 
                   child: const Center(
                     child: Text(
-                      "Create Account",
+                      "Update",
                       style: TextStyle(
                           fontSize: 20,
                           color: Colors.black,
@@ -821,50 +978,65 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 height: 16,
               ),
 
-              // already have an account login here button'
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Already have an account?",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
-
-                  InkWell(
-                    onTap: () {
-                      Get.back();
-                    },
-
-                    child: const Text(
-                      "Login Here",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              showProgressbar == true
-                  ? CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.pink),
-              )
-                  : Container(),
-
-              const SizedBox(
-                height: 30,
-              ),
 
 
             ],
           ),
         ),
+      )
+          : Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  child: GridView.builder(
+                    itemCount: _image.length + 1,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                    ),
+                    itemBuilder: (context, index)
+                    {
+                      return index == 0
+                          ? Container(
+                        color: Colors.white30,
+                        child: Center(
+                          child: IconButton(
+                            onPressed: ()
+                            {
+                              if(_image.length < 5)
+                                {
+                                  !uploading ? chooseImage() : null;
+                                }
+                              else
+                                {
+                                  setState(() {
+                                    uploading == true;
+                                  });
+
+                                  Get.snackbar("5 Images Chosen", "すでに５枚選択されています");
+                                }
+                            },
+                            icon: const Icon(Icons.add),
+                          ),
+                        ),
+                      )
+                      : Container(
+                        margin: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image : FileImage(
+                                  _image[index - 1]
+                              ),
+                              fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
       ),
     );
   }
 }
+
+

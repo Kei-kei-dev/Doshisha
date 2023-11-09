@@ -9,14 +9,13 @@ class Person
   String? password;
   String? name;
   int? age;
+  String? gender;
   int? grade;
   String? faculty;
   String? department;
-  String? phoneNo;
   String? city;
   String? country;
   String? profileHeading;
-  String? lookingForInaPartner;
   int? publishedDateTime;
 
   // Appearance
@@ -25,24 +24,23 @@ class Person
   String? bodyType;
 
   // Life style
+  String? interest;
+  String? club;
+  String? zodiac;
+  String? bloodType;
+  String? personality;
   String? drink;
   String? smoke;
-  String? martialStatus;
-  String? haveChildren;
-  String? noOfChildren;
-  String? profession;
-  String? employmentStatus;
-  String? income;
+  String? exercise;
+  String? dietaryRestrictions;
+  String? partTime;
   String? livingSituation;
-  String? willingToRelocate;
+  String? lookingForInaPartner;
   String? relationshipYouAreLookingFor;
 
   // Background - Cultural Values
   String? nationality;
-  String? education;
   String? languageSpoken;
-  String? religion;
-  String? ethnicity;
 
   Person({
     // personal info
@@ -52,14 +50,13 @@ class Person
     this.password,
     this.name,
     this.age,
+    this.gender,
     this.grade,
     this.faculty,
     this.department,
-    this.phoneNo,
     this.city,
     this.country,
     this.profileHeading,
-    this.lookingForInaPartner,
     this.publishedDateTime,
 
     // Appearance
@@ -68,24 +65,23 @@ class Person
     this.bodyType,
 
     // Life style
+    this.interest,
+    this.club,
+    this.zodiac,
+    this.bloodType,
+    this.personality,
     this.drink,
     this.smoke,
-    this.martialStatus,
-    this.haveChildren,
-    this.noOfChildren,
-    this.profession,
-    this.employmentStatus,
-    this.income,
+    this.exercise,
+    this.dietaryRestrictions,
+    this.partTime,
     this.livingSituation,
-    this.willingToRelocate,
+    this.lookingForInaPartner,
     this.relationshipYouAreLookingFor,
 
     // Background - Cultural Values
     this.nationality,
-    this.education,
     this.languageSpoken,
-    this.religion,
-    this.ethnicity,
 
 
 
@@ -103,14 +99,13 @@ class Person
       password: dataSnapshot["password"],
       name: dataSnapshot["name"],
       age: dataSnapshot["age"],
+      gender: dataSnapshot["gender"],
       grade: dataSnapshot["grade"],
       faculty: dataSnapshot["faculty"],
       department: dataSnapshot["department"],
-      phoneNo: dataSnapshot["phoneNo"],
       city: dataSnapshot["city"],
       country: dataSnapshot["country"],
       profileHeading: dataSnapshot["profileHeading"],
-      lookingForInaPartner: dataSnapshot["lookingForInaPartner"],
       publishedDateTime: dataSnapshot["publishedDateTime"],
 
       // Appearance
@@ -119,24 +114,24 @@ class Person
       bodyType: dataSnapshot["bodyType"],
 
       // Life style
+      interest: dataSnapshot["interest"],
+      club: dataSnapshot["club"],
+      zodiac: dataSnapshot["zodiac"],
+      bloodType: dataSnapshot["bloodType"],
+      personality: dataSnapshot["personality"],
       drink: dataSnapshot["drink"],
       smoke: dataSnapshot["smoke"],
-      martialStatus: dataSnapshot["martialStatus"],
-      haveChildren: dataSnapshot["haveChildren"],
-      noOfChildren: dataSnapshot["noOfChildren"],
-      profession: dataSnapshot["profession"],
-      employmentStatus: dataSnapshot["employmentStatus"],
-      income: dataSnapshot["income"],
+      exercise: dataSnapshot["exercise"],
+      dietaryRestrictions: dataSnapshot["dietaryRestrictions"],
+      partTime: dataSnapshot["partTime"],
       livingSituation: dataSnapshot["livingSituation"],
-      willingToRelocate: dataSnapshot["willingToRelocate"],
+      lookingForInaPartner: dataSnapshot["lookingForInaPartner"],
       relationshipYouAreLookingFor: dataSnapshot["relationshipYouAreLookingFor"],
+
 
       // Background - Cultural Values
       nationality: dataSnapshot["nationality"],
-      education: dataSnapshot["education"],
       languageSpoken: dataSnapshot["languageSpoken"],
-      religion: dataSnapshot["religion"],
-      ethnicity: dataSnapshot["ethnicity"],
     );
   }
 
@@ -149,14 +144,13 @@ class Person
         "password": password,
         "name": name,
         "age": age,
+        "gender": gender,
         "grade": grade,
         "faculty": faculty,
         "department": department,
-        "phoneNo": phoneNo,
         "city": city,
         "country": country,
         "profileHeading": profileHeading,
-        "lookingForInaPartner": lookingForInaPartner,
         "publishedDateTime": publishedDateTime,
 
         // Appearance
@@ -165,24 +159,23 @@ class Person
         "bodyType": bodyType,
 
         // Life style
+        "interest": interest,
+        "club": club,
+        "zodiac": zodiac,
+        "bloodType": bloodType,
+        "personality": personality,
         "drink": drink,
         "smoke": smoke,
-        "martialStatus": martialStatus,
-        "haveChildren": haveChildren,
-        "noOfChildren": noOfChildren,
-        "profession": profession,
-        "employmentStatus": employmentStatus,
-        "income": income,
+        "exercise": exercise,
+        "dietaryRestrictions": dietaryRestrictions,
+        "partTime": partTime,
         "livingSituation": livingSituation,
-        "willingToRelocate": willingToRelocate,
+        "lookingForInaPartner": lookingForInaPartner,
         "relationshipYouAreLookingFor": relationshipYouAreLookingFor,
 
         // Background - Cultural Values
         "nationality": nationality,
-        "education": education,
         "languageSpoken": languageSpoken,
-        "religion": religion,
-        "ethnicity": ethnicity,
 
       };
 

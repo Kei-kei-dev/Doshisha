@@ -17,6 +17,183 @@ class _SwippingScreenState extends State<SwippingScreen>
   ProfileController profileController = Get.put(ProfileController());
   String senderName = "";
 
+  applyFilter()
+  {
+    showDialog(
+      context: context,
+      builder: (BuildContext context)
+        {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState)
+                {
+                  return AlertDialog(
+                    title: const Text(
+                      "Matching Filter",
+                    ),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text("探しているのは:"),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DropdownButton<String>(
+                            hint: const Text('性別を選択してください'),
+                            value: chosenGender,
+                            underline: Container(),
+                            items: [
+                              '男性',
+                              '女性',
+                              'その他'
+                            ].map((value)
+                            {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? value)
+                            {
+                              setState(() {
+                                chosenGender = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20,),
+                        const Text("国籍:"),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DropdownButton<String>(
+                            hint: const Text('国名を選択してください'),
+                            value: chosenCountry,
+                            underline: Container(),
+                            items: [
+                              '日本',
+                              'スペイン',
+                              '中国',
+                              '韓国',
+                              'その他'
+                            ].map((value)
+                            {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? value)
+                            {
+                              setState(() {
+                                chosenCountry = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20,),
+                        const Text("学年:"),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DropdownButton<String>(
+                            hint: const Text('学年を選択してください'),
+                            value: chosenGrade,
+                            underline: Container(),
+                            items: [
+                              '1',
+                              '2',
+                              '3',
+                              '4',
+                            ].map((value)
+                            {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                  value,
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? value)
+                            {
+                              setState(() {
+                                chosenGrade = value;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20,),
+                        const Text("学部:"),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DropdownButton<String>(
+                            hint: const Text('学部を選択してください'),
+                            value: chosenFaculty,
+                            underline: Container(),
+                            items: faculties.map((String faculty) {
+                              return DropdownMenuItem<String>(
+                                value: faculty,
+                                child: Text(
+                                  faculty,
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue)
+                            {
+                              setState(() {
+                                chosenFaculty = newValue;
+                                chosenDepartment = null; // 学部が変更されたら学科の選択をリセット
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 20,),
+                        const Text("学科:"),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DropdownButton<String>(
+                            hint: Text("学科を選択してください"),
+                            value: chosenDepartment,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                chosenDepartment = newValue;
+                              });
+                            },
+                            items: chosenFaculty != null
+                                ? departmentsInFaculty[chosenFaculty!]?.map((department) {
+                              return DropdownMenuItem<String>(
+                                value: department,
+                                child: Text(department),
+                              );
+                            }).toList()
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: 20,),
+                      ],
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        onPressed: ()
+                        {
+                          Get.back();
+
+                          profileController.getResults();
+                        },
+                        child: const Text("Done"),
+                      ),
+                    ],
+                  );
+                }
+          );
+        }
+    );
+  }
+
   readCurrentUserData() async
   {
     await FirebaseFirestore.instance
@@ -73,7 +250,7 @@ class _SwippingScreenState extends State<SwippingScreen>
                         child: IconButton(
                           onPressed: ()
                           {
-
+                            applyFilter();
                           },
                           icon: const Icon(
                             Icons.filter_list,
@@ -91,7 +268,7 @@ class _SwippingScreenState extends State<SwippingScreen>
                       {
                         profileController.viewSentAndViewReceived(
                           eachProfileInfo.uid.toString(),
-                          senderName
+                          senderName,
                         );
                         // send user to profile person userDetailScreen
                         Get.to(UserDetailScreen(userID: eachProfileInfo.uid.toString(),
